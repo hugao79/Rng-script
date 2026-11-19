@@ -1,9 +1,4 @@
 local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Lighting = game:GetService("Lighting")
-local Workspace = game:GetService("Workspace")
-
 local LocalPlayer = Players.LocalPlayer or Players.PlayerAdded:Wait()
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
@@ -34,28 +29,19 @@ bolinha.TextSize = 15
 bolinha.Visible = true
 bolinha.ZIndex = 50
 bolinha.Parent = gui
-
-local cornerBolinha = Instance.new("UICorner")
-cornerBolinha.CornerRadius = UDim.new(1, 0)
-cornerBolinha.Parent = bolinha
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
+Instance.new("UICorner", bolinha).CornerRadius = UDim.new(1, 0)
 local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
 local gui = PlayerGui and PlayerGui:FindFirstChild("GrudarMenu")
 local bolinha = gui and gui:FindFirstChild("Bolinha")
-if not (gui and bolinha) then
-	return
-end
-
-local POS_BOLINHA_PADRAO = UDim2.fromOffset(16, 110)
-local POS_MENU_PADRAO = UDim2.fromOffset(80, 60)
+if not (gui and bolinha) then return end
 
 local menu = Instance.new("Frame")
 menu.Name = "Menu"
 menu.Size = UDim2.fromOffset(276, 386)
-menu.Position = POS_MENU_PADRAO
+menu.Position = UDim2.fromOffset(80, 60)
 menu.BackgroundColor3 = Color3.fromRGB(17, 18, 26)
 menu.BorderSizePixel = 0
 menu.Active = true
@@ -137,9 +123,7 @@ barraAbas.CanvasSize = UDim2.fromOffset(#NOMES_ABAS * 50, 0)
 barraAbas.ZIndex = 31
 barraAbas.Parent = menu
 
-local containers = {}
-local botoes = {}
-
+local containers, botoes = {}, {}
 local function selecionarAba(nome)
 	for _, n in ipairs(NOMES_ABAS) do
 		local ativo = (n == nome)
@@ -175,9 +159,7 @@ for i, nome in ipairs(NOMES_ABAS) do
 	cont.Parent = menu
 	containers[nome] = cont
 
-	btn.Activated:Connect(function()
-		selecionarAba(nome)
-	end)
+	btn.Activated:Connect(function() selecionarAba(nome) end)
 end
 
 local menuTravado = false
@@ -222,8 +204,7 @@ local gui = PlayerGui and PlayerGui:FindFirstChild("GrudarMenu")
 local menu = gui and gui:FindFirstChild("Menu")
 local contTP = menu and menu:FindFirstChild("Conteudo_TP")
 local status = menu and menu:FindFirstChild("FaixaStatus") and menu.FaixaStatus:FindFirstChild("Status")
-local bolinha = gui and gui:FindFirstChild("Bolinha")
-if not (contTP and status and bolinha) then return end
+if not (contTP and status) then return end
 
 local busca = Instance.new("TextBox")
 busca.Size = UDim2.new(1, 0, 0, 28)
@@ -369,97 +350,101 @@ local contAim = menu and menu:FindFirstChild("Conteudo_Aim")
 local status = menu and menu:FindFirstChild("FaixaStatus") and menu.FaixaStatus:FindFirstChild("Status")
 if not (contAim and status) then return end
 
-local suav, filtroTela, cabeca, aimAuto, connAim = 14, true, true, false, nil
+local forcaAssist, antiParede, cabeca, aimAtivo, connAim = 6, true, true, false, nil
 
-local lblSuav = Instance.new("TextLabel")
-lblSuav.Size = UDim2.new(1, 0, 0, 26)
-lblSuav.BackgroundColor3 = Color3.fromRGB(29, 31, 43)
-lblSuav.Text = "Suavidade da Mira: 14"
-lblSuav.TextColor3 = Color3.fromRGB(246, 247, 252)
-lblSuav.Font = Enum.Font.GothamBold
-lblSuav.TextSize = 12
-lblSuav.Parent = contAim
-Instance.new("UICorner", lblSuav).CornerRadius = UDim.new(0, 8)
+local lblAssist = Instance.new("TextLabel")
+lblAssist.Size = UDim2.new(1, 0, 0, 28)
+lblAssist.BackgroundColor3 = Color3.fromRGB(29, 31, 43)
+lblAssist.Text = "Sensibilidade da Mira: 6"
+lblAssist.TextColor3 = Color3.fromRGB(246, 247, 252)
+lblAssist.Font = Enum.Font.GothamBold
+lblAssist.TextSize = 12
+lblAssist.Parent = contAim
+Instance.new("UICorner", lblAssist).CornerRadius = UDim.new(0, 8)
 
-local btnMenos = Instance.new("TextButton")
-btnMenos.Size = UDim2.new(0.48, 0, 0, 34)
-btnMenos.Position = UDim2.fromOffset(0, 32)
-btnMenos.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
-btnMenos.Text = "- Mais Suave"
-btnMenos.TextColor3 = Color3.fromRGB(246, 247, 252)
-btnMenos.Font = Enum.Font.GothamBold
-btnMenos.TextSize = 11
-btnMenos.Parent = contAim
-Instance.new("UICorner", btnMenos).CornerRadius = UDim.new(0, 8)
+local bMenos = Instance.new("TextButton")
+bMenos.Size = UDim2.new(0.48, 0, 0, 34)
+bMenos.Position = UDim2.fromOffset(0, 34)
+bMenos.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bMenos.Text = "- Mais Suave"
+bMenos.TextColor3 = Color3.fromRGB(246, 247, 252)
+bMenos.Font = Enum.Font.GothamBold
+bMenos.TextSize = 11
+bMenos.Parent = contAim
+Instance.new("UICorner", bMenos).CornerRadius = UDim.new(0, 8)
 
-local btnMais = Instance.new("TextButton")
-btnMais.Size = UDim2.new(0.49, 0, 0, 34)
-btnMais.Position = UDim2.new(0.51, 0, 0, 32)
-btnMais.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-btnMais.Text = "+ Mais Firme"
-btnMais.TextColor3 = Color3.fromRGB(246, 247, 252)
-btnMais.Font = Enum.Font.GothamBold
-btnMais.TextSize = 11
-btnMais.Parent = contAim
-Instance.new("UICorner", btnMais).CornerRadius = UDim.new(0, 8)
+local bMais = Instance.new("TextButton")
+bMais.Size = UDim2.new(0.49, 0, 0, 34)
+bMais.Position = UDim2.new(0.51, 0, 0, 34)
+bMais.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+bMais.Text = "+ Mais Firme"
+bMais.TextColor3 = Color3.fromRGB(246, 247, 252)
+bMais.Font = Enum.Font.GothamBold
+bMais.TextSize = 11
+bMais.Parent = contAim
+Instance.new("UICorner", bMais).CornerRadius = UDim.new(0, 8)
 
-local btnFiltro = Instance.new("TextButton")
-btnFiltro.Size = UDim2.new(1, 0, 0, 38)
-btnFiltro.Position = UDim2.fromOffset(0, 74)
-btnFiltro.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
-btnFiltro.Text = "PRIORIDADE: TELA (FOV)"
-btnFiltro.TextColor3 = Color3.fromRGB(56, 189, 248)
-btnFiltro.Font = Enum.Font.GothamBold
-btnFiltro.TextSize = 11
-btnFiltro.Parent = contAim
-Instance.new("UICorner", btnFiltro).CornerRadius = UDim.new(0, 9)
+local bParede = Instance.new("TextButton")
+bParede.Size = UDim2.new(1, 0, 0, 38)
+bParede.Position = UDim2.fromOffset(0, 76)
+bParede.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bParede.Text = "BLOQUEAR PAREDE: ON"
+bParede.TextColor3 = Color3.fromRGB(46, 160, 90)
+bParede.Font = Enum.Font.GothamBold
+bParede.TextSize = 11
+bParede.Parent = contAim
+Instance.new("UICorner", bParede).CornerRadius = UDim.new(0, 9)
 
-local btnParte = Instance.new("TextButton")
-btnParte.Size = UDim2.new(1, 0, 0, 38)
-btnParte.Position = UDim2.fromOffset(0, 118)
-btnParte.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
-btnParte.Text = "ALVO: CABEÇA (HEAD)"
-btnParte.TextColor3 = Color3.fromRGB(215, 165, 40)
-btnParte.Font = Enum.Font.GothamBold
-btnParte.TextSize = 11
-btnParte.Parent = contAim
-Instance.new("UICorner", btnParte).CornerRadius = UDim.new(0, 9)
+local bParte = Instance.new("TextButton")
+bParte.Size = UDim2.new(1, 0, 0, 38)
+bParte.Position = UDim2.fromOffset(0, 120)
+bParte.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bParte.Text = "FOCO: CABEÇA (HEAD)"
+bParte.TextColor3 = Color3.fromRGB(215, 165, 40)
+bParte.Font = Enum.Font.GothamBold
+bParte.TextSize = 11
+bParte.Parent = contAim
+Instance.new("UICorner", bParte).CornerRadius = UDim.new(0, 9)
 
-local btnAim = Instance.new("TextButton")
-btnAim.Size = UDim2.new(1, 0, 0, 44)
-btnAim.Position = UDim2.fromOffset(0, 164)
-btnAim.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
-btnAim.Text = "MIRA AUTOMÁTICA: OFF"
-btnAim.TextColor3 = Color3.fromRGB(165, 170, 190)
-btnAim.Font = Enum.Font.GothamBold
-btnAim.TextSize = 12
-btnAim.Parent = contAim
-Instance.new("UICorner", btnAim).CornerRadius = UDim.new(0, 10)
+local bAim = Instance.new("TextButton")
+bAim.Size = UDim2.new(1, 0, 0, 44)
+bAim.Position = UDim2.fromOffset(0, 166)
+bAim.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bAim.Text = "ASSISTÊNCIA DE MIRA: OFF"
+bAim.TextColor3 = Color3.fromRGB(165, 170, 190)
+bAim.Font = Enum.Font.GothamBold
+bAim.TextSize = 12
+bAim.Parent = contAim
+Instance.new("UICorner", bAim).CornerRadius = UDim.new(0, 10)
 
-local function pontoAlvo(char)
-	if not char then return nil end
-	local p = cabeca and char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
-	return p and p.Position
+local function visivelSemParede(cam, alvoChar, pt)
+	if not antiParede then return true end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local ignorar = {}
+	if LocalPlayer.Character then table.insert(ignorar, LocalPlayer.Character) end
+	if Workspace.CurrentCamera then table.insert(ignorar, Workspace.CurrentCamera) end
+	params.FilterDescendantsInstances = ignorar
+	local origem = cam.CFrame.Position
+	local hit = Workspace:Raycast(origem, pt - origem, params)
+	if not hit then return true end
+	return hit.Instance:IsDescendantOf(alvoChar)
 end
 
-local function melhorAlvo(cam)
-	local melhor, score = nil, math.huge
+local function buscarAlvo(cam)
+	local melhor, menorDist = nil, 140
 	local centro = Vector2.new(cam.ViewportSize.X * 0.5, cam.ViewportSize.Y * 0.5)
-	local minhaRaiz = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= LocalPlayer and plr.Character then
 			local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-			local pt = pontoAlvo(plr.Character)
-			if hum and hum.Health > 0 and pt then
-				if filtroTela then
-					local pos, vis = cam:WorldToViewportPoint(pt)
-					if vis and pos.Z > 0 then
-						local d = (Vector2.new(pos.X, pos.Y) - centro).Magnitude
-						if d < score then score, melhor = d, pt end
+			local parte = cabeca and plr.Character:FindFirstChild("Head") or plr.Character:FindFirstChild("HumanoidRootPart")
+			if hum and hum.Health > 0 and parte then
+				local pos, vis = cam:WorldToViewportPoint(parte.Position)
+				if vis and pos.Z > 0 then
+					local dTela = (Vector2.new(pos.X, pos.Y) - centro).Magnitude
+					if dTela <= menorDist and visivelSemParede(cam, plr.Character, parte.Position) then
+						menorDist, melhor = dTela, parte.Position
 					end
-				elseif minhaRaiz then
-					local d = (minhaRaiz.Position - pt).Magnitude
-					if d < score then score, melhor = d, pt end
 				end
 			end
 		end
@@ -468,34 +453,38 @@ local function melhorAlvo(cam)
 end
 
 local function syncAim()
-	lblSuav.Text = "Suavidade da Mira: " .. tostring(suav)
-	btnFiltro.Text = filtroTela and "PRIORIDADE: TELA (FOV)" or "PRIORIDADE: DISTÂNCIA"
-	btnParte.Text = cabeca and "ALVO: CABEÇA (HEAD)" or "ALVO: TORSO (ROOT)"
-	btnAim.Text = aimAuto and "MIRA AUTOMÁTICA: ON" or "MIRA AUTOMÁTICA: OFF"
-	btnAim.BackgroundColor3 = aimAuto and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(43, 46, 63)
-	btnAim.TextColor3 = aimAuto and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(165, 170, 190)
+	lblAssist.Text = "Sensibilidade da Mira: " .. tostring(forcaAssist)
+	bParede.Text = antiParede and "BLOQUEAR PAREDE: ON" or "BLOQUEAR PAREDE: OFF"
+	bParede.TextColor3 = antiParede and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(165, 170, 190)
+	bParte.Text = cabeca and "FOCO: CABEÇA (HEAD)" or "FOCO: TORSO (ROOT)"
+	bAim.Text = aimAtivo and "ASSISTÊNCIA DE MIRA: ON" or "ASSISTÊNCIA DE MIRA: OFF"
+	bAim.BackgroundColor3 = aimAtivo and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(43, 46, 63)
+	bAim.TextColor3 = aimAtivo and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(165, 170, 190)
 end
 
-btnMenos.Activated:Connect(function() suav = math.clamp(suav - 2, 2, 40) syncAim() end)
-btnMais.Activated:Connect(function() suav = math.clamp(suav + 2, 2, 40) syncAim() end)
-btnFiltro.Activated:Connect(function() filtroTela = not filtroTela syncAim() end)
-btnParte.Activated:Connect(function() cabeca = not cabeca syncAim() end)
-btnAim.Activated:Connect(function()
-	aimAuto = not aimAuto
-	if aimAuto and not connAim then
+bMenos.Activated:Connect(function() forcaAssist = math.clamp(forcaAssist - 1, 1, 16) syncAim() end)
+bMais.Activated:Connect(function() forcaAssist = math.clamp(forcaAssist + 1, 1, 16) syncAim() end)
+bParede.Activated:Connect(function() antiParede = not antiParede syncAim() end)
+bParte.Activated:Connect(function() cabeca = not cabeca syncAim() end)
+bAim.Activated:Connect(function()
+	aimAtivo = not aimAtivo
+	if aimAtivo and not connAim then
 		connAim = RunService.RenderStepped:Connect(function(dt)
 			local cam = Workspace.CurrentCamera
-			if not (aimAuto and cam) then return end
-			local pt = melhorAlvo(cam)
+			if not (aimAtivo and cam) then return end
+			local pt = buscarAlvo(cam)
 			if pt then
-				cam.CFrame = cam.CFrame:Lerp(CFrame.lookAt(cam.CFrame.Position, pt), math.clamp(suav * dt, 0.05, 1))
+				local atual = cam.CFrame
+				local alvoCF = CFrame.lookAt(atual.Position, pt)
+				local peso = math.clamp(forcaAssist * dt * 0.25, 0.015, 0.22)
+				cam.CFrame = atual:Lerp(alvoCF, peso)
 			end
 		end)
-	elseif not aimAuto and connAim then
+	elseif not aimAtivo and connAim then
 		connAim:Disconnect() connAim = nil
 	end
 	syncAim()
-	status.Text = aimAuto and "Mira automática ligada" or "Mira automática desligada"
+	status.Text = aimAtivo and "Assistência de mira ligada" or "Assistência de mira desligada"
 end)
 syncAim()
 local Players = game:GetService("Players")
@@ -696,7 +685,7 @@ bMaisV.Activated:Connect(function() vel = math.clamp(vel + 4, 8, 150) syncSpeed(
 bSpeed.Activated:Connect(function() speedOn = not speedOn syncSpeed() end)
 bCf.Activated:Connect(function() cfOn = not cfOn syncSpeed() end)
 
-local pulo, jumpOn, infOn, connJ = 100, false, false, nil
+local pulo, jumpOn, infOn, connJ, ultPulo = 100, false, false, nil, 0
 local lblPulo = Instance.new("TextLabel")
 lblPulo.Size = UDim2.new(1, 0, 0, 28)
 lblPulo.BackgroundColor3 = Color3.fromRGB(29, 31, 43)
@@ -761,16 +750,26 @@ local function syncJump()
 	if h then h.UseJumpPower = true h.JumpPower = jumpOn and pulo or 50 end
 end
 
+local function executarPuloInfinito()
+	if not infOn or os.clock() - ultPulo < 0.14 then return end
+	ultPulo = os.clock()
+	local c = LocalPlayer.Character
+	local h = c and c:FindFirstChildOfClass("Humanoid")
+	local r = c and c:FindFirstChild("HumanoidRootPart")
+	if h and r then
+		local imp = jumpOn and math.clamp(pulo * 0.65, 45, 140) or 52
+		r.AssemblyLinearVelocity = Vector3.new(r.AssemblyLinearVelocity.X, imp, r.AssemblyLinearVelocity.Z)
+		h:ChangeState(Enum.HumanoidStateType.Jumping)
+	end
+end
+
 bMenosJ.Activated:Connect(function() pulo = math.clamp(pulo - 10, 10, 250) syncJump() end)
 bMaisJ.Activated:Connect(function() pulo = math.clamp(pulo + 10, 10, 250) syncJump() end)
 bJump.Activated:Connect(function() jumpOn = not jumpOn syncJump() end)
 bInf.Activated:Connect(function()
 	infOn = not infOn
 	if infOn and not connJ then
-		connJ = UserInputService.JumpRequest:Connect(function()
-			local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-			if infOn and h then h:ChangeState(Enum.HumanoidStateType.Jumping) end
-		end)
+		connJ = UserInputService.JumpRequest:Connect(executarPuloInfinito)
 	elseif not infOn and connJ then
 		connJ:Disconnect() connJ = nil
 	end
@@ -778,6 +777,7 @@ bInf.Activated:Connect(function()
 end)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
@@ -789,50 +789,146 @@ local contCam = menu and menu:FindFirstChild("Conteudo_Cam")
 if not (contMov and contCam) then return end
 
 local flyOn, flyVel, connFly, bg, bv = false, 55, nil, nil, nil
+local segurandoSubir, segurandoDescer = false, false
+
+local lblFly = Instance.new("TextLabel")
+lblFly.Size = UDim2.new(1, 0, 0, 22)
+lblFly.BackgroundColor3 = Color3.fromRGB(29, 31, 43)
+lblFly.Text = "Vel. do Fly: 55"
+lblFly.TextColor3 = Color3.fromRGB(246, 247, 252)
+lblFly.Font = Enum.Font.GothamBold
+lblFly.TextSize = 11
+lblFly.Parent = contMov
+Instance.new("UICorner", lblFly).CornerRadius = UDim.new(0, 8)
+
+local bMenosFly = Instance.new("TextButton")
+bMenosFly.Size = UDim2.new(0.23, 0, 0, 32)
+bMenosFly.Position = UDim2.fromOffset(0, 26)
+bMenosFly.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bMenosFly.Text = "- Vel"
+bMenosFly.TextColor3 = Color3.fromRGB(246, 247, 252)
+bMenosFly.Font = Enum.Font.GothamBold
+bMenosFly.TextSize = 11
+bMenosFly.Parent = contMov
+Instance.new("UICorner", bMenosFly).CornerRadius = UDim.new(0, 8)
+
+local bMaisFly = Instance.new("TextButton")
+bMaisFly.Size = UDim2.new(0.23, 0, 0, 32)
+bMaisFly.Position = UDim2.new(0.25, 0, 0, 26)
+bMaisFly.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+bMaisFly.Text = "+ Vel"
+bMaisFly.TextColor3 = Color3.fromRGB(246, 247, 252)
+bMaisFly.Font = Enum.Font.GothamBold
+bMaisFly.TextSize = 11
+bMaisFly.Parent = contMov
+Instance.new("UICorner", bMaisFly).CornerRadius = UDim.new(0, 8)
+
 local bFly = Instance.new("TextButton")
-bFly.Size = UDim2.new(1, 0, 0, 40)
+bFly.Size = UDim2.new(0.50, 0, 0, 32)
+bFly.Position = UDim2.new(0.50, 0, 0, 26)
 bFly.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
-bFly.Text = "FLY MOBILE: OFF"
+bFly.Text = "FLY: OFF"
 bFly.TextColor3 = Color3.fromRGB(165, 170, 190)
 bFly.Font = Enum.Font.GothamBold
-bFly.TextSize = 12
+bFly.TextSize = 11
 bFly.Parent = contMov
-Instance.new("UICorner", bFly).CornerRadius = UDim.new(0, 9)
+Instance.new("UICorner", bFly).CornerRadius = UDim.new(0, 8)
+
+local bSubir = Instance.new("TextButton")
+bSubir.Size = UDim2.new(0.48, 0, 0, 32)
+bSubir.Position = UDim2.fromOffset(0, 62)
+bSubir.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bSubir.Text = "SUBIR ▲"
+bSubir.TextColor3 = Color3.fromRGB(246, 247, 252)
+bSubir.Font = Enum.Font.GothamBold
+bSubir.TextSize = 11
+bSubir.Parent = contMov
+Instance.new("UICorner", bSubir).CornerRadius = UDim.new(0, 8)
+
+local bDescer = Instance.new("TextButton")
+bDescer.Size = UDim2.new(0.49, 0, 0, 32)
+bDescer.Position = UDim2.new(0.51, 0, 0, 62)
+bDescer.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bDescer.Text = "DESCER ▼"
+bDescer.TextColor3 = Color3.fromRGB(246, 247, 252)
+bDescer.Font = Enum.Font.GothamBold
+bDescer.TextSize = 11
+bDescer.Parent = contMov
+Instance.new("UICorner", bDescer).CornerRadius = UDim.new(0, 8)
 
 local noclipOn, connNc = false, nil
 local bNc = Instance.new("TextButton")
-bNc.Size = UDim2.new(1, 0, 0, 40)
-bNc.Position = UDim2.fromOffset(0, 48)
+bNc.Size = UDim2.new(1, 0, 0, 36)
+bNc.Position = UDim2.fromOffset(0, 100)
 bNc.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
 bNc.Text = "NOCLIP: OFF"
 bNc.TextColor3 = Color3.fromRGB(165, 170, 190)
 bNc.Font = Enum.Font.GothamBold
-bNc.TextSize = 12
+bNc.TextSize = 11
 bNc.Parent = contMov
 Instance.new("UICorner", bNc).CornerRadius = UDim.new(0, 9)
 
 local gravOn, gravVal = false, 75
 local bGrav = Instance.new("TextButton")
-bGrav.Size = UDim2.new(1, 0, 0, 40)
-bGrav.Position = UDim2.fromOffset(0, 96)
+bGrav.Size = UDim2.new(1, 0, 0, 36)
+bGrav.Position = UDim2.fromOffset(0, 142)
 bGrav.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
 bGrav.Text = "GRAVIDADE 75: OFF"
 bGrav.TextColor3 = Color3.fromRGB(165, 170, 190)
 bGrav.Font = Enum.Font.GothamBold
-bGrav.TextSize = 12
+bGrav.TextSize = 11
 bGrav.Parent = contMov
 Instance.new("UICorner", bGrav).CornerRadius = UDim.new(0, 9)
 
+local function syncFlyUI()
+	lblFly.Text = "Vel. do Fly: " .. tostring(flyVel)
+	bFly.Text = flyOn and "FLY: ON" or "FLY: OFF"
+	bFly.BackgroundColor3 = flyOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(43, 46, 63)
+	bFly.TextColor3 = flyOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(165, 170, 190)
+end
+
 local function stopFly()
 	flyOn = false
+	segurandoSubir = false
+	segurandoDescer = false
 	if connFly then connFly:Disconnect() connFly = nil end
 	if bg then bg:Destroy() bg = nil end
 	if bv then bv:Destroy() bv = nil end
 	local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
 	if h then h.PlatformStand = false end
-	bFly.Text = "FLY MOBILE: OFF"
-	bFly.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+	syncFlyUI()
 end
+
+bMenosFly.Activated:Connect(function() flyVel = math.clamp(flyVel - 10, 15, 220) syncFlyUI() end)
+bMaisFly.Activated:Connect(function() flyVel = math.clamp(flyVel + 10, 15, 220) syncFlyUI() end)
+
+bSubir.InputBegan:Connect(function(inp)
+	if inp.UserInputType == Enum.UserInputType.Touch or inp.UserInputType == Enum.UserInputType.MouseButton1 then
+		segurandoSubir = true
+	end
+end)
+bSubir.InputEnded:Connect(function(inp)
+	if inp.UserInputType == Enum.UserInputType.Touch or inp.UserInputType == Enum.UserInputType.MouseButton1 then
+		segurandoSubir = false
+	end
+end)
+
+bDescer.InputBegan:Connect(function(inp)
+	if inp.UserInputType == Enum.UserInputType.Touch or inp.UserInputType == Enum.UserInputType.MouseButton1 then
+		segurandoDescer = true
+	end
+end)
+bDescer.InputEnded:Connect(function(inp)
+	if inp.UserInputType == Enum.UserInputType.Touch or inp.UserInputType == Enum.UserInputType.MouseButton1 then
+		segurandoDescer = false
+	end
+end)
+UserInputService.InputEnded:Connect(function(inp)
+	if inp.UserInputType == Enum.UserInputType.Touch or inp.UserInputType == Enum.UserInputType.MouseButton1 then
+		segurandoSubir = false
+		segurandoDescer = false
+	end
+end)
 
 bFly.Activated:Connect(function()
 	if flyOn then stopFly() return end
@@ -843,12 +939,22 @@ bFly.Activated:Connect(function()
 	flyOn = true h.PlatformStand = true
 	bg = Instance.new("BodyGyro", r) bg.MaxTorque = Vector3.new(9e9, 9e9, 9e9) bg.P = 9e4
 	bv = Instance.new("BodyVelocity", r) bv.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-	bFly.Text = "FLY MOBILE: ON" bFly.BackgroundColor3 = Color3.fromRGB(46, 160, 90)
+	syncFlyUI()
 	connFly = RunService.RenderStepped:Connect(function()
 		local cam = Workspace.CurrentCamera
 		if not (flyOn and r.Parent and h.Parent and cam and bg and bv) then stopFly() return end
 		bg.CFrame = cam.CFrame
-		bv.Velocity = (h.MoveDirection.Magnitude > 0) and (cam.CFrame.LookVector * h.MoveDirection:Dot(Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z).Unit) + cam.CFrame.RightVector * h.MoveDirection:Dot(Vector3.new(cam.CFrame.RightVector.X, 0, cam.CFrame.RightVector.Z).Unit)).Unit * flyVel or Vector3.zero
+		local f = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
+		local d = Vector3.new(cam.CFrame.RightVector.X, 0, cam.CFrame.RightVector.Z)
+		local dir = Vector3.zero
+		if h.MoveDirection.Magnitude > 0 then
+			local av = (f.Magnitude > 0.01) and h.MoveDirection:Dot(f.Unit) or 0
+			local lt = (d.Magnitude > 0.01) and h.MoveDirection:Dot(d.Unit) or 0
+			dir = (cam.CFrame.LookVector * av) + (cam.CFrame.RightVector * lt)
+		end
+		if segurandoSubir then dir = dir + Vector3.new(0, 1, 0) end
+		if segurandoDescer then dir = dir - Vector3.new(0, 1, 0) end
+		bv.Velocity = (dir.Magnitude > 0) and (dir.Unit * flyVel) or Vector3.zero
 	end)
 end)
 
@@ -965,28 +1071,117 @@ bSentar.Activated:Connect(function()
 	if h then h.Sit = not h.Sit end
 end)
 
-local bFps = Instance.new("TextButton")
-bFps.Size = UDim2.new(1, 0, 0, 44)
-bFps.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
-bFps.Text = "OTIMIZAR FPS / MODO LISO"
-bFps.TextColor3 = Color3.fromRGB(246, 247, 252)
-bFps.Font = Enum.Font.GothamBold
-bFps.TextSize = 12
-bFps.Parent = contFPS
-Instance.new("UICorner", bFps).CornerRadius = UDim.new(0, 10)
+local sombrasPadrao = Lighting.GlobalShadows
+local origProps = setmetatable({}, { __mode = "k" })
 
-bFps.Activated:Connect(function()
-	pcall(function() Lighting.GlobalShadows = false end)
-	for _, o in ipairs(Workspace:GetDescendants()) do
-		if o:IsA("BasePart") then
-			pcall(function() o.CastShadow = false o.Material = Enum.Material.SmoothPlastic end)
-		elseif o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam") or o:IsA("Fire") or o:IsA("Smoke") then
-			pcall(function() o.Enabled = false end)
+local function salvarOrig(obj, prop)
+	if not origProps[obj] then origProps[obj] = {} end
+	if origProps[obj][prop] == nil then
+		local ok, val = pcall(function() return obj[prop] end)
+		if ok then origProps[obj][prop] = val end
+	end
+end
+
+local function aplicarNivelFPS(nivel)
+	if nivel >= 1 then
+		pcall(function() Lighting.GlobalShadows = false end)
+		for _, o in ipairs(Lighting:GetDescendants()) do
+			if o:IsA("PostEffect") then
+				salvarOrig(o, "Enabled")
+				pcall(function() o.Enabled = false end)
+			end
 		end
 	end
-	bFps.Text = "FPS OTIMIZADO!"
-	bFps.BackgroundColor3 = Color3.fromRGB(46, 160, 90)
-end)
+	if nivel >= 2 then
+		for _, o in ipairs(Workspace:GetDescendants()) do
+			if o:IsA("BasePart") then
+				salvarOrig(o, "CastShadow")
+				pcall(function() o.CastShadow = false end)
+			elseif o:IsA("ParticleEmitter") or o:IsA("Trail") or o:IsA("Beam") or o:IsA("Fire") or o:IsA("Smoke") or o:IsA("Sparkles") then
+				salvarOrig(o, "Enabled")
+				pcall(function() o.Enabled = false end)
+			end
+		end
+	end
+	if nivel >= 3 then
+		for _, o in ipairs(Workspace:GetDescendants()) do
+			if o:IsA("BasePart") then
+				salvarOrig(o, "Material")
+				pcall(function() o.Material = Enum.Material.SmoothPlastic end)
+			elseif o:IsA("Decal") or o:IsA("Texture") then
+				salvarOrig(o, "Transparency")
+				pcall(function() o.Transparency = 1 end)
+			end
+		end
+	end
+end
+
+local function restaurarFPS()
+	pcall(function() Lighting.GlobalShadows = sombrasPadrao end)
+	for obj, props in pairs(origProps) do
+		if obj and obj.Parent then
+			for prop, val in pairs(props) do
+				pcall(function() obj[prop] = val end)
+			end
+		end
+	end
+	table.clear(origProps)
+end
+
+local bFps1 = Instance.new("TextButton")
+bFps1.Size = UDim2.new(1, 0, 0, 38)
+bFps1.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bFps1.Text = "FPS NÍVEL 1 (LEVE - SOMBRAS)"
+bFps1.TextColor3 = Color3.fromRGB(246, 247, 252)
+bFps1.Font = Enum.Font.GothamBold
+bFps1.TextSize = 11
+bFps1.Parent = contFPS
+Instance.new("UICorner", bFps1).CornerRadius = UDim.new(0, 8)
+
+local bFps2 = Instance.new("TextButton")
+bFps2.Size = UDim2.new(1, 0, 0, 38)
+bFps2.Position = UDim2.fromOffset(0, 44)
+bFps2.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bFps2.Text = "FPS NÍVEL 2 (MÉDIO - EFEITOS)"
+bFps2.TextColor3 = Color3.fromRGB(215, 165, 40)
+bFps2.Font = Enum.Font.GothamBold
+bFps2.TextSize = 11
+bFps2.Parent = contFPS
+Instance.new("UICorner", bFps2).CornerRadius = UDim.new(0, 8)
+
+local bFps3 = Instance.new("TextButton")
+bFps3.Size = UDim2.new(1, 0, 0, 38)
+bFps3.Position = UDim2.fromOffset(0, 88)
+bFps3.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+bFps3.Text = "FPS NÍVEL 3 (MÁXIMO - LISO)"
+bFps3.TextColor3 = Color3.fromRGB(46, 160, 90)
+bFps3.Font = Enum.Font.GothamBold
+bFps3.TextSize = 11
+bFps3.Parent = contFPS
+Instance.new("UICorner", bFps3).CornerRadius = UDim.new(0, 8)
+
+local bRestaurarFps = Instance.new("TextButton")
+bRestaurarFps.Size = UDim2.new(1, 0, 0, 38)
+bRestaurarFps.Position = UDim2.fromOffset(0, 134)
+bRestaurarFps.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
+bRestaurarFps.Text = "RESTAURAR FPS (PADRÃO)"
+bRestaurarFps.TextColor3 = Color3.fromRGB(246, 247, 252)
+bRestaurarFps.Font = Enum.Font.GothamBold
+bRestaurarFps.TextSize = 11
+bRestaurarFps.Parent = contFPS
+Instance.new("UICorner", bRestaurarFps).CornerRadius = UDim.new(0, 8)
+
+local function pintarFPS(ativoBtn)
+	bFps1.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+	bFps2.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+	bFps3.BackgroundColor3 = Color3.fromRGB(43, 46, 63)
+	if ativoBtn then ativoBtn.BackgroundColor3 = Color3.fromRGB(46, 160, 90) end
+end
+
+bFps1.Activated:Connect(function() aplicarNivelFPS(1) pintarFPS(bFps1) end)
+bFps2.Activated:Connect(function() aplicarNivelFPS(2) pintarFPS(bFps2) end)
+bFps3.Activated:Connect(function() aplicarNivelFPS(3) pintarFPS(bFps3) end)
+bRestaurarFps.Activated:Connect(function() restaurarFPS() pintarFPS(nil) end)
 
 local bResp = Instance.new("TextButton")
 bResp.Size = UDim2.new(1, 0, 0, 44)
