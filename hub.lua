@@ -1,15 +1,13 @@
 local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
-if not LocalPlayer then
-	repeat task.wait() until Players.LocalPlayer
-	LocalPlayer = Players.LocalPlayer
+local player = Players.LocalPlayer
+while not player do
+	player = Players.LocalPlayer
+	task.wait()
 end
 
-local PlayerGui = LocalPlayer:FindFirstChildOfClass("PlayerGui") or LocalPlayer:WaitForChild("PlayerGui", 10)
-if not PlayerGui then return end
-
-local antigo = PlayerGui:FindFirstChild("GrudarMenu")
-if antigo then antigo:Destroy() end
+local playerGui = player:WaitForChild("PlayerGui")
+local antiga = playerGui:FindFirstChild("GrudarMenu")
+if antiga then antiga:Destroy() end
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "GrudarMenu"
@@ -17,7 +15,7 @@ gui.Enabled = true
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999999
-gui.Parent = PlayerGui
+gui.Parent = playerGui
 
 local bolinha = Instance.new("TextButton")
 bolinha.Name = "Bolinha"
@@ -32,15 +30,11 @@ bolinha.Font = Enum.Font.GothamBold
 bolinha.TextSize = 15
 bolinha.Visible = true
 bolinha.Parent = gui
-
-local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(1, 0)
-corner.Parent = bolinha
+Instance.new("UICorner", bolinha).CornerRadius = UDim.new(1, 0)
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-local gui = PlayerGui and PlayerGui:FindFirstChild("GrudarMenu")
+local player = Players.LocalPlayer
+local gui = player and player:FindFirstChild("PlayerGui") and player.PlayerGui:FindFirstChild("GrudarMenu")
 local bolinha = gui and gui:FindFirstChild("Bolinha")
 if not (gui and bolinha) then return end
 
@@ -98,13 +92,11 @@ barraAbas.BackgroundColor3 = Color3.fromRGB(25, 27, 38)
 barraAbas.BorderSizePixel = 0
 barraAbas.Parent = menu
 Instance.new("UICorner", barraAbas).CornerRadius = UDim.new(0, 10)
-
-local layAbas = Instance.new("UIListLayout")
+local layAbas = Instance.new("UIListLayout", barraAbas)
 layAbas.FillDirection = Enum.FillDirection.Horizontal
 layAbas.HorizontalAlignment = Enum.HorizontalAlignment.Center
 layAbas.VerticalAlignment = Enum.VerticalAlignment.Center
 layAbas.Padding = UDim.new(0, 4)
-layAbas.Parent = barraAbas
 
 local faixaStatus = Instance.new("Frame")
 faixaStatus.Name = "FaixaStatus"
@@ -167,16 +159,13 @@ for _, nome in ipairs(ABAS) do
 	cont.Parent = menu
 	containers[nome] = cont
 
-	local pad = Instance.new("UIPadding")
+	local pad = Instance.new("UIPadding", cont)
 	pad.PaddingTop = UDim.new(0, 2)
 	pad.PaddingBottom = UDim.new(0, 8)
 	pad.PaddingRight = UDim.new(0, 4)
-	pad.Parent = cont
-
-	local lay = Instance.new("UIListLayout")
+	local lay = Instance.new("UIListLayout", cont)
 	lay.SortOrder = Enum.SortOrder.LayoutOrder
 	lay.Padding = UDim.new(0, 6)
-	lay.Parent = cont
 
 	btn.Activated:Connect(function() selecionarAba(nome) end)
 end
@@ -216,11 +205,8 @@ tornarArrastavel(bolinha, bolinha, function() menu.Visible = not menu.Visible en
 selecionarAba("TP")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
-local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-local gui = PlayerGui and PlayerGui:FindFirstChild("GrudarMenu")
-local menu = gui and gui:FindFirstChild("Menu")
+local menu = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("GrudarMenu") and LocalPlayer.PlayerGui.GrudarMenu:FindFirstChild("Menu")
 local contTP = menu and menu:FindFirstChild("Conteudo_TP")
 local status = menu and menu:FindFirstChild("FaixaStatus") and menu.FaixaStatus:FindFirstChild("Status")
 if not (contTP and status) then return end
@@ -229,56 +215,58 @@ local function mkBtn(pai, txt, alt, bg, fg, ts)
 	local b = Instance.new("TextButton")
 	b.Size = UDim2.new(1, 0, 0, alt or 36)
 	b.BackgroundColor3 = bg or Color3.fromRGB(36, 39, 54)
-	b.BorderSizePixel = 0 b.Text = txt b.TextColor3 = fg or Color3.fromRGB(246, 247, 252)
-	b.Font = Enum.Font.GothamBold b.TextSize = ts or 11 b.Parent = pai
-	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9) return b
-end
-local function mkLbl(pai, txt, alt, bg, ts)
-	local l = Instance.new("TextLabel")
-	l.Size = UDim2.new(1, 0, 0, alt or 26)
-	l.BackgroundColor3 = bg or Color3.fromRGB(25, 27, 38)
-	l.BorderSizePixel = 0 l.Text = txt l.TextColor3 = Color3.fromRGB(246, 247, 252)
-	l.Font = Enum.Font.GothamBold l.TextSize = ts or 11 l.Parent = pai
-	Instance.new("UICorner", l).CornerRadius = UDim.new(0, 8) return l
-end
-local function mkLinha(pai, alt)
-	local f = Instance.new("Frame") f.Size = UDim2.new(1, 0, 0, alt or 34)
-	f.BackgroundTransparency = 1 f.Parent = pai return f
+	b.BorderSizePixel = 0
+	b.Text = txt
+	b.TextColor3 = fg or Color3.fromRGB(246, 247, 252)
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = ts or 11
+	b.Parent = pai
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9)
+	return b
 end
 
 local busca = Instance.new("TextBox")
 busca.Size = UDim2.new(1, 0, 0, 32)
-busca.BackgroundColor3 = Color3.fromRGB(25, 27, 38) busca.BorderSizePixel = 0
-busca.PlaceholderText = "Buscar jogador..." busca.PlaceholderColor3 = Color3.fromRGB(168, 174, 196)
-busca.Text = "" busca.TextColor3 = Color3.fromRGB(246, 247, 252) busca.Font = Enum.Font.Gotham busca.TextSize = 12
-busca.ClearTextOnFocus = false busca.Parent = contTP Instance.new("UICorner", busca).CornerRadius = UDim.new(0, 8)
+busca.BackgroundColor3 = Color3.fromRGB(25, 27, 38)
+busca.BorderSizePixel = 0
+busca.PlaceholderText = "Buscar jogador..."
+busca.PlaceholderColor3 = Color3.fromRGB(168, 174, 196)
+busca.Text = ""
+busca.TextColor3 = Color3.fromRGB(246, 247, 252)
+busca.Font = Enum.Font.Gotham
+busca.TextSize = 12
+busca.ClearTextOnFocus = false
+busca.Parent = contTP
+Instance.new("UICorner", busca).CornerRadius = UDim.new(0, 8)
 
 local lista = Instance.new("ScrollingFrame")
 lista.Size = UDim2.new(1, 0, 0, 106)
-lista.BackgroundColor3 = Color3.fromRGB(25, 27, 38) lista.BorderSizePixel = 0 lista.ScrollBarThickness = 3
-lista.CanvasSize = UDim2.new(0, 0, 0, 0) lista.AutomaticCanvasSize = Enum.AutomaticSize.Y lista.Parent = contTP
+lista.BackgroundColor3 = Color3.fromRGB(25, 27, 38)
+lista.BorderSizePixel = 0
+lista.ScrollBarThickness = 3
+lista.CanvasSize = UDim2.new(0, 0, 0, 0)
+lista.AutomaticCanvasSize = Enum.AutomaticSize.Y
+lista.Parent = contTP
 Instance.new("UICorner", lista).CornerRadius = UDim.new(0, 9)
-local layL = Instance.new("UIListLayout", lista) layL.Padding = UDim.new(0, 4) layL.SortOrder = Enum.SortOrder.Name
-local padL = Instance.new("UIPadding", lista) padL.PaddingTop = UDim.new(0, 4) padL.PaddingBottom = UDim.new(0, 4) padL.PaddingLeft = UDim.new(0, 4) padL.PaddingRight = UDim.new(0, 4)
+local layL = Instance.new("UIListLayout", lista)
+layL.Padding = UDim.new(0, 4)
+layL.SortOrder = Enum.SortOrder.Name
+local padL = Instance.new("UIPadding", lista)
+padL.PaddingTop = UDim.new(0, 4)
+padL.PaddingBottom = UDim.new(0, 4)
+padL.PaddingLeft = UDim.new(0, 4)
+padL.PaddingRight = UDim.new(0, 4)
 
-local l1 = mkLinha(contTP, 36)
-local btnIr = mkBtn(l1, "IR ATÉ ALVO", 36, Color3.fromRGB(88, 101, 242)) btnIr.Size = UDim2.new(0.49, 0, 1, 0)
-local btnCostas = mkBtn(l1, "COSTAS: OFF", 36, Color3.fromRGB(36, 39, 54), Color3.fromRGB(168, 174, 196)) btnCostas.Size = UDim2.new(0.49, 0, 1, 0) btnCostas.Position = UDim2.new(0.51, 0, 0, 0)
+local l1 = Instance.new("Frame")
+l1.Size = UDim2.new(1, 0, 0, 36)
+l1.BackgroundTransparency = 1
+l1.Parent = contTP
+local btnIr = mkBtn(l1, "IR ATÉ ALVO", 36, Color3.fromRGB(88, 101, 242))
+btnIr.Size = UDim2.new(0.49, 0, 1, 0)
+local btnCostas = mkBtn(l1, "COSTAS: OFF", 36, Color3.fromRGB(36, 39, 54), Color3.fromRGB(168, 174, 196))
+btnCostas.Size = UDim2.new(0.49, 0, 1, 0)
+btnCostas.Position = UDim2.new(0.51, 0, 0, 0)
 local btnCaotico = mkBtn(contTP, "ATIVAR TP CAÓTICO", 36, Color3.fromRGB(46, 160, 90), nil, 12)
-
-mkLbl(contTP, "AIMBOT & MIRA", 22, Color3.fromRGB(25, 27, 38), 10)
-local forcaAssist, antiParede, cabeca, aimAtivo, connAim = 18, true, true, false, nil
-local lblAssist = mkLbl(contTP, "Travamento da Mira: 18", 28, Color3.fromRGB(36, 39, 54), 11)
-
-local l2 = mkLinha(contTP, 34)
-local bMenos = mkBtn(l2, "- Menos Travado", 34) bMenos.Size = UDim2.new(0.49, 0, 1, 0)
-local bMais = mkBtn(l2, "+ Mais Travado", 34, Color3.fromRGB(88, 101, 242)) bMais.Size = UDim2.new(0.49, 0, 1, 0) bMais.Position = UDim2.new(0.51, 0, 0, 0)
-
-local l3 = mkLinha(contTP, 34)
-local bParede = mkBtn(l3, "PAREDE: ON", 34, Color3.fromRGB(36, 39, 54), Color3.fromRGB(46, 160, 90)) bParede.Size = UDim2.new(0.49, 0, 1, 0)
-local bParte = mkBtn(l3, "FOCO: CABEÇA", 34, Color3.fromRGB(36, 39, 54), Color3.fromRGB(215, 165, 40)) bParte.Size = UDim2.new(0.49, 0, 1, 0) bParte.Position = UDim2.new(0.51, 0, 0, 0)
-
-local bAim = mkBtn(contTP, "AIMBOT: OFF", 40, Color3.fromRGB(36, 39, 54), Color3.fromRGB(168, 174, 196), 12)
 
 local selecionado, ativoTP, tpCostas, connTP, botoesPlr = nil, false, false, nil, {}
 local function raiz(c) return c and c:FindFirstChild("HumanoidRootPart") end
@@ -325,7 +313,8 @@ end
 local function addPlr(plr)
 	if plr == LocalPlayer or botoesPlr[plr] then return end
 	local b = mkBtn(lista, plr.DisplayName .. " (@" .. plr.Name .. ")", 30)
-	b.Name = string.lower(plr.Name) botoesPlr[plr] = b
+	b.Name = string.lower(plr.Name)
+	botoesPlr[plr] = b
 	b.Activated:Connect(function() selecionado = plr refreshTP() end)
 end
 
@@ -338,8 +327,61 @@ btnCostas.Activated:Connect(function() if tpCostas then pararTP() else iniciarTP
 btnCaotico.Activated:Connect(function() if ativoTP then pararTP() else iniciarTP(false) end end)
 for _, p in ipairs(Players:GetPlayers()) do addPlr(p) end
 Players.PlayerAdded:Connect(addPlr)
-Players.PlayerRemoving:Connect(function(p) if botoesPlr[p] then botoesPlr[p]:Destroy() botoesPlr[p] = nil end if selecionado == p then selecionado = nil pararTP() end end)
+Players.PlayerRemoving:Connect(function(p)
+	if botoesPlr[p] then botoesPlr[p]:Destroy() botoesPlr[p] = nil end
+	if selecionado == p then selecionado = nil pararTP() end
+end)
 refreshTP()
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local menu = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("GrudarMenu") and LocalPlayer.PlayerGui.GrudarMenu:FindFirstChild("Menu")
+local contTP = menu and menu:FindFirstChild("Conteudo_TP")
+local status = menu and menu:FindFirstChild("FaixaStatus") and menu.FaixaStatus:FindFirstChild("Status")
+if not (contTP and status) then return end
+
+local function mkBtn(pai, txt, alt, bg, fg, ts)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1, 0, 0, alt or 34)
+	b.BackgroundColor3 = bg or Color3.fromRGB(36, 39, 54)
+	b.BorderSizePixel = 0
+	b.Text = txt
+	b.TextColor3 = fg or Color3.fromRGB(246, 247, 252)
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = ts or 11
+	b.Parent = pai
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9)
+	return b
+end
+
+local function mkLbl(pai, txt, alt, bg, ts)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.new(1, 0, 0, alt or 26)
+	l.BackgroundColor3 = bg or Color3.fromRGB(25, 27, 38)
+	l.BorderSizePixel = 0
+	l.Text = txt
+	l.TextColor3 = Color3.fromRGB(246, 247, 252)
+	l.Font = Enum.Font.GothamBold
+	l.TextSize = ts or 11
+	l.Parent = pai
+	Instance.new("UICorner", l).CornerRadius = UDim.new(0, 8)
+	return l
+end
+
+mkLbl(contTP, "AIMBOT & MIRA", 22, Color3.fromRGB(25, 27, 38), 10)
+local forcaAssist, antiParede, cabeca, aimAtivo, connAim = 18, true, true, false, nil
+local lblAssist = mkLbl(contTP, "Travamento da Mira: 18", 28, Color3.fromRGB(36, 39, 54), 11)
+
+local l2 = Instance.new("Frame") l2.Size = UDim2.new(1, 0, 0, 34) l2.BackgroundTransparency = 1 l2.Parent = contTP
+local bMenos = mkBtn(l2, "- Menos Travado", 34) bMenos.Size = UDim2.new(0.49, 0, 1, 0)
+local bMais = mkBtn(l2, "+ Mais Travado", 34, Color3.fromRGB(88, 101, 242)) bMais.Size = UDim2.new(0.49, 0, 1, 0) bMais.Position = UDim2.new(0.51, 0, 0, 0)
+
+local l3 = Instance.new("Frame") l3.Size = UDim2.new(1, 0, 0, 34) l3.BackgroundTransparency = 1 l3.Parent = contTP
+local bParede = mkBtn(l3, "PAREDE: ON", 34, Color3.fromRGB(36, 39, 54), Color3.fromRGB(46, 160, 90)) bParede.Size = UDim2.new(0.49, 0, 1, 0)
+local bParte = mkBtn(l3, "FOCO: CABEÇA", 34, Color3.fromRGB(36, 39, 54), Color3.fromRGB(215, 165, 40)) bParte.Size = UDim2.new(0.49, 0, 1, 0) bParte.Position = UDim2.new(0.51, 0, 0, 0)
+
+local bAim = mkBtn(contTP, "AIMBOT: OFF", 40, Color3.fromRGB(36, 39, 54), Color3.fromRGB(168, 174, 196), 12)
 
 local function visivelSemParede(cam, alvoChar, pt)
 	if not antiParede then return true end
@@ -353,13 +395,19 @@ local function visivelSemParede(cam, alvoChar, pt)
 	return hit.Instance:IsDescendantOf(alvoChar)
 end
 
+local function pegarParteAlvo(char)
+	if not char then return nil end
+	if cabeca then return char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart") end
+	return char:FindFirstChild("HumanoidRootPart") or char:FindFirstChild("Head")
+end
+
 local function buscarAlvo(cam)
 	local melhor, menorDist = nil, 240
 	local centro = Vector2.new(cam.ViewportSize.X * 0.5, cam.ViewportSize.Y * 0.5)
 	for _, plr in ipairs(Players:GetPlayers()) do
 		if plr ~= LocalPlayer and plr.Character then
 			local hum = plr.Character:FindFirstChildOfClass("Humanoid")
-			local parte = cabeca and (plr.Character:FindFirstChild("Head") or plr.Character:FindFirstChild("HumanoidRootPart")) or (plr.Character:FindFirstChild("HumanoidRootPart") or plr.Character:FindFirstChild("Head"))
+			local parte = pegarParteAlvo(plr.Character)
 			if hum and hum.Health > 0 and parte then
 				local pos, vis = cam:WorldToViewportPoint(parte.Position)
 				if vis and pos.Z > 0 then
@@ -403,12 +451,8 @@ syncAim()
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-local gui = PlayerGui and PlayerGui:FindFirstChild("GrudarMenu")
-local menu = gui and gui:FindFirstChild("Menu")
-local contMov = menu and menu:FindFirstChild("Conteudo_Mov")
+local contMov = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("GrudarMenu") and LocalPlayer.PlayerGui.GrudarMenu:FindFirstChild("Menu") and LocalPlayer.PlayerGui.GrudarMenu.Menu:FindFirstChild("Conteudo_Mov")
 if not contMov then return end
 
 local function mkBtn(pai, txt, alt, bg, fg)
@@ -505,6 +549,32 @@ bMaisJ.Activated:Connect(function() pulo = math.clamp(pulo + 10, 10, 250) syncJu
 bJump.Activated:Connect(function() jumpOn = not jumpOn syncJump() end)
 bInf.Activated:Connect(function() infOn = not infOn if infOn then ligarInf() else desligarInf() end syncJump() end)
 LocalPlayer.CharacterAdded:Connect(function() task.wait(0.25) syncJump() if infOn then ligarInf() end end)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local contMov = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("GrudarMenu") and LocalPlayer.PlayerGui.GrudarMenu:FindFirstChild("Menu") and LocalPlayer.PlayerGui.GrudarMenu.Menu:FindFirstChild("Conteudo_Mov")
+if not contMov then return end
+
+local function mkBtn(pai, txt, alt, bg, fg)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1, 0, 0, alt or 34) b.BackgroundColor3 = bg or Color3.fromRGB(36, 39, 54)
+	b.BorderSizePixel = 0 b.Text = txt b.TextColor3 = fg or Color3.fromRGB(246, 247, 252)
+	b.Font = Enum.Font.GothamBold b.TextSize = 11 b.Parent = pai
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9) return b
+end
+local function mkLbl(pai, txt)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.new(1, 0, 0, 26) l.BackgroundColor3 = Color3.fromRGB(36, 39, 54)
+	l.BorderSizePixel = 0 l.Text = txt l.TextColor3 = Color3.fromRGB(246, 247, 252)
+	l.Font = Enum.Font.GothamBold l.TextSize = 11 l.Parent = pai
+	Instance.new("UICorner", l).CornerRadius = UDim.new(0, 8) return l
+end
+local function mkLinha(pai, alt)
+	local f = Instance.new("Frame") f.Size = UDim2.new(1, 0, 0, alt or 34)
+	f.BackgroundTransparency = 1 f.Parent = pai return f
+end
 
 local flyOn, flyVel, connFly, bg, bv = false, 55, nil, nil, nil
 local segSubir, segDescer = false, false
@@ -527,13 +597,16 @@ local bGrav = mkBtn(lFis, "GRAV 75: OFF", 36, nil, Color3.fromRGB(168, 174, 196)
 local function syncFlyUI()
 	lblFly.Text = "Vel. do Fly: " .. tostring(flyVel)
 	bFly.Text = flyOn and "FLY: ON" or "FLY: OFF"
-	bFly.BackgroundColor3 = flyOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(36, 39, 54) bFly.TextColor3 = flyOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(168, 174, 196)
+	bFly.BackgroundColor3 = flyOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(36, 39, 54)
+	bFly.TextColor3 = flyOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(168, 174, 196)
 end
 local function stopFly()
 	flyOn = false segSubir = false segDescer = false
 	if connFly then connFly:Disconnect() connFly = nil end
-	if bg then bg:Destroy() bg = nil end if bv then bv:Destroy() bv = nil end
-	local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") if h then h.PlatformStand = false end
+	if bg then bg:Destroy() bg = nil end
+	if bv then bv:Destroy() bv = nil end
+	local h = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+	if h then h.PlatformStand = false end
 	syncFlyUI()
 end
 bMenosFly.Activated:Connect(function() flyVel = math.clamp(flyVel - 10, 15, 220) syncFlyUI() end)
@@ -569,36 +642,39 @@ bFly.Activated:Connect(function()
 end)
 
 bNc.Activated:Connect(function()
-	noclipOn = not noclipOn bNc.Text = noclipOn and "NOCLIP: ON" or "NOCLIP: OFF"
-	bNc.BackgroundColor3 = noclipOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(36, 39, 54) bNc.TextColor3 = noclipOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(168, 174, 196)
-	if noclipOn and not connNc then connNc = RunService.Stepped:Connect(function() if noclipOn and LocalPlayer.Character then for _, p in ipairs(LocalPlayer.Character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end end end)
+	noclipOn = not noclipOn
+	bNc.Text = noclipOn and "NOCLIP: ON" or "NOCLIP: OFF"
+	bNc.BackgroundColor3 = noclipOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(36, 39, 54)
+	bNc.TextColor3 = noclipOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(168, 174, 196)
+	if noclipOn and not connNc then
+		connNc = RunService.Stepped:Connect(function()
+			if noclipOn and LocalPlayer.Character then
+				for _, p in ipairs(LocalPlayer.Character:GetDescendants()) do if p:IsA("BasePart") then p.CanCollide = false end end
+			end
+		end)
 	elseif not noclipOn and connNc then connNc:Disconnect() connNc = nil end
 end)
+
 bGrav.Activated:Connect(function()
-	gravOn = not gravOn Workspace.Gravity = gravOn and gravVal or 196.2
+	gravOn = not gravOn
+	Workspace.Gravity = gravOn and gravVal or 196.2
 	bGrav.Text = gravOn and "GRAV 75: ON" or "GRAV 75: OFF"
-	bGrav.BackgroundColor3 = gravOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(36, 39, 54) bGrav.TextColor3 = gravOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(168, 174, 196)
+	bGrav.BackgroundColor3 = gravOn and Color3.fromRGB(46, 160, 90) or Color3.fromRGB(36, 39, 54)
+	bGrav.TextColor3 = gravOn and Color3.fromRGB(246, 247, 252) or Color3.fromRGB(168, 174, 196)
 end)
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 local LocalPlayer = Players.LocalPlayer
-local PlayerGui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui")
-local gui = PlayerGui and PlayerGui:FindFirstChild("GrudarMenu")
-local menu = gui and gui:FindFirstChild("Menu")
-local bolinha = gui and gui:FindFirstChild("Bolinha")
-local contVis = menu and menu:FindFirstChild("Conteudo_Visão")
-local contFPS = menu and menu:FindFirstChild("Conteudo_FPS")
-local contMais = menu and menu:FindFirstChild("Conteudo_Mais")
-local status = menu and menu:FindFirstChild("FaixaStatus") and menu.FaixaStatus:FindFirstChild("Status")
-if not (bolinha and contVis and contFPS and contMais and status) then return end
+local contVis = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("GrudarMenu") and LocalPlayer.PlayerGui.GrudarMenu:FindFirstChild("Menu") and LocalPlayer.PlayerGui.GrudarMenu.Menu:FindFirstChild("Conteudo_Visão")
+if not contVis then return end
 
-local function mkBtn(pai, txt, alt, bg, fg, ts)
+local function mkBtn(pai, txt)
 	local b = Instance.new("TextButton")
-	b.Size = UDim2.new(1, 0, 0, alt or 38) b.BackgroundColor3 = bg or Color3.fromRGB(36, 39, 54)
-	b.BorderSizePixel = 0 b.Text = txt b.TextColor3 = fg or Color3.fromRGB(246, 247, 252)
-	b.Font = Enum.Font.GothamBold b.TextSize = ts or 11 b.Parent = pai
+	b.Size = UDim2.new(1, 0, 0, 36) b.BackgroundColor3 = Color3.fromRGB(36, 39, 54)
+	b.BorderSizePixel = 0 b.Text = txt b.TextColor3 = Color3.fromRGB(168, 174, 196)
+	b.Font = Enum.Font.GothamBold b.TextSize = 11 b.Parent = pai
 	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9) return b
 end
 local function mkSec(pai, txt)
@@ -609,13 +685,11 @@ local function mkSec(pai, txt)
 	Instance.new("UICorner", l).CornerRadius = UDim.new(0, 8)
 end
 
--- Visão
-mkSec(contVis, "ESP DE JOGADORES")
-local btnEsp = mkBtn(contVis, "ESP TEXTO + HP: OFF", 38, nil, Color3.fromRGB(168, 174, 196), 12)
-local btnHl = mkBtn(contVis, "CONTORNO JOGADORES: OFF", 38, nil, Color3.fromRGB(168, 174, 196), 12)
-mkSec(contVis, "CÂMERA & ILUMINAÇÃO")
-local bFb = mkBtn(contVis, "FULLBRIGHT: OFF", 38, nil, Color3.fromRGB(168, 174, 196), 12)
-local bFov = mkBtn(contVis, "FOV 95: OFF", 38, nil, Color3.fromRGB(168, 174, 196), 12)
+mkSec(contVis, "ESP & CÂMERA")
+local btnEsp = mkBtn(contVis, "ESP TEXTO + HP: OFF")
+local btnHl = mkBtn(contVis, "CONTORNO JOGADORES: OFF")
+local bFb = mkBtn(contVis, "FULLBRIGHT: OFF")
+local bFov = mkBtn(contVis, "FOV 95: OFF")
 
 local espOn, hlOn, fbOn, fovOn = false, false, false, false
 local tags, hls, connEsp, connCam = {}, {}, nil, nil
@@ -675,8 +749,34 @@ bFb.Activated:Connect(function() fbOn = not fbOn syncCam() end)
 bFov.Activated:Connect(function() fovOn = not fovOn syncCam() end)
 Players.PlayerAdded:Connect(function(p) p.CharacterAdded:Connect(function() task.wait(0.2) if espOn or hlOn then rebuildESP() end end) end)
 for _, p in ipairs(Players:GetPlayers()) do if p ~= LocalPlayer then p.CharacterAdded:Connect(function() task.wait(0.2) if espOn or hlOn then rebuildESP() end end) end end
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local Workspace = game:GetService("Workspace")
+local LocalPlayer = Players.LocalPlayer
+local gui = LocalPlayer and LocalPlayer:FindFirstChild("PlayerGui") and LocalPlayer.PlayerGui:FindFirstChild("GrudarMenu")
+local menu = gui and gui:FindFirstChild("Menu")
+local bolinha = gui and gui:FindFirstChild("Bolinha")
+local contFPS = menu and menu:FindFirstChild("Conteudo_FPS")
+local contMais = menu and menu:FindFirstChild("Conteudo_Mais")
+local status = menu and menu:FindFirstChild("FaixaStatus") and menu.FaixaStatus:FindFirstChild("Status")
+if not (bolinha and contFPS and contMais and status) then return end
 
--- FPS
+local function mkBtn(pai, txt, alt, bg, fg, ts)
+	local b = Instance.new("TextButton")
+	b.Size = UDim2.new(1, 0, 0, alt or 36) b.BackgroundColor3 = bg or Color3.fromRGB(36, 39, 54)
+	b.BorderSizePixel = 0 b.Text = txt b.TextColor3 = fg or Color3.fromRGB(246, 247, 252)
+	b.Font = Enum.Font.GothamBold b.TextSize = ts or 11 b.Parent = pai
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 9) return b
+end
+local function mkSec(pai, txt)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.new(1, 0, 0, 22) l.BackgroundColor3 = Color3.fromRGB(25, 27, 38)
+	l.BorderSizePixel = 0 l.Text = txt l.TextColor3 = Color3.fromRGB(246, 247, 252)
+	l.Font = Enum.Font.GothamBold l.TextSize = 10 l.Parent = pai
+	Instance.new("UICorner", l).CornerRadius = UDim.new(0, 8)
+end
+
 mkSec(contFPS, "NÍVEIS DE DESEMPENHO")
 local sombrasPadrao, origProps, nivelAtualFPS, connsFPS = Lighting.GlobalShadows, {}, 0, {}
 local function salvarOrig(obj, prop)
@@ -735,15 +835,13 @@ bFps2.Activated:Connect(function() aplicarNivelFPS(2) pintarFPS(bFps2) end)
 bFps3.Activated:Connect(function() aplicarNivelFPS(3) pintarFPS(bFps3) end)
 bRestaurarFps.Activated:Connect(function() restaurarFPS() pintarFPS(nil) end)
 
--- Mais
-mkSec(contMais, "DIVERSÃO & UTILIDADES")
+mkSec(contMais, "DIVERSÃO, UTIL & UI")
 local spinOn, connSpn = false, nil
 local linhaFun = Instance.new("Frame") linhaFun.Size = UDim2.new(1, 0, 0, 36) linhaFun.BackgroundTransparency = 1 linhaFun.Parent = contMais
 local bSpin = mkBtn(linhaFun, "SPIN: OFF", 36, nil, Color3.fromRGB(168, 174, 196), 11) bSpin.Size = UDim2.new(0.49, 0, 1, 0)
 local bSentar = mkBtn(linhaFun, "SENTAR / LEVANTAR", 36, Color3.fromRGB(88, 101, 242), Color3.fromRGB(246, 247, 252), 11) bSentar.Size = UDim2.new(0.49, 0, 1, 0) bSentar.Position = UDim2.new(0.51, 0, 0, 0)
 local bResp = mkBtn(contMais, "RESPAWN RÁPIDO", 36, Color3.fromRGB(205, 65, 65), Color3.fromRGB(246, 247, 252), 12)
 
-mkSec(contMais, "INTERFACE MOBILE")
 local compacta = false
 local bTam = mkBtn(contMais, "BOLINHA: NORMAL (58px)", 36, nil, Color3.fromRGB(246, 247, 252), 11)
 local bPos = mkBtn(contMais, "RESETAR POSIÇÃO DO MENU", 36, Color3.fromRGB(88, 101, 242), Color3.fromRGB(246, 247, 252), 11)
